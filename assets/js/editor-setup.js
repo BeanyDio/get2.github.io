@@ -39,7 +39,7 @@ require(['vs/editor/editor.main', 'luaparse'], function (monaco, luaparse) {
             { token: 'delimiter', foreground: '8be9fd' } // Cyan
         ],
         colors: {
-            'editor.background': '#282a36',
+            'editor.background': '#151515',
             'editor.foreground': '#f8f8f2',
         }
         
@@ -729,15 +729,32 @@ require(['vs/editor/editor.main', 'luaparse'], function (monaco, luaparse) {
         });
     }
 
-    // Modify existing editor creation to ensure error detection
+    // Функция для изменения масштаба редактора
+    function setupZoom(editor) {
+        let currentZoom = 1; // Начальный масштаб
+
+        // Обработчик события колесика мыши
+        editor.onMouseWheel((event) => {
+            if (event.event.ctrlKey) { // Проверяем, зажат ли Ctrl
+                event.event.preventDefault(); // Предотвращаем стандартное поведение прокрутки
+                if (event.deltaY < 0) {
+                    currentZoom += 0.1; // Увеличиваем масштаб
+                } else {
+                    currentZoom = Math.max(0.5, currentZoom - 0.1); // Уменьшаем масштаб, но не меньше 0.5
+                }
+                editor.updateOptions({ fontSize: Math.round(14 * currentZoom) }); // Обновляем размер шрифта
+            }
+        });
+    }
+
+    // Измените функцию createEditorInstance, чтобы включить zoom
     function createEditorInstance(container) {
         const editor = monaco.editor.create(container, {
             language: 'luau',
             theme: 'luauVibrantTheme',
             automaticLayout: true,
             minimap: { enabled: false },
-            debugger: {enabled: true},
-            fontSize: 14,
+            fontSize: 14, // Начальный размер шрифта
             lineNumbers: 'on',
             roundedSelection: false,
             scrollBeyondLastLine: false,
@@ -747,6 +764,9 @@ require(['vs/editor/editor.main', 'luaparse'], function (monaco, luaparse) {
             insertSpaces: true,
             wordWrap: 'on'
         });
+
+        // Настройка зума для редактора
+        setupZoom(editor);
 
         // Setup error detection for this editor
         setupErrorDetection(editor);
@@ -1105,6 +1125,15 @@ print("Mayakovski Team!")`);
             window.triggerErrorHighlight();
         }
     });
+
+    // Добавьте стиль для фона таба
+    const tabStyle = document.createElement('style');
+    tabStyle.textContent = `
+        .tab {
+            background-color: #151515; /* Изменен цвет фона таба */
+        }
+    `;
+    document.head.appendChild(tabStyle);
 
     document.addEventListener('DOMContentLoaded', function() {
         const tabContainer = document.querySelector('.tab-container');
