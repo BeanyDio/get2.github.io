@@ -42,6 +42,7 @@ require(['vs/editor/editor.main', 'luaparse'], function (monaco, luaparse) {
             'editor.background': '#282a36',
             'editor.foreground': '#f8f8f2',
         }
+        
     });
 
 
